@@ -194,19 +194,19 @@ function Base.cmp(x::Float128, y::Float128)
     r = Ref{Cint}()
     ccall((:c_dd_comp, libqd), Cvoid, (Ref{DD}, Ref{DD}, Ref{Cint}),
           x.dd, y.dd, r)
-    Int(r)
+    Int(r[])
 end
 function Base.cmp(x::Float64, y::Float128)
     r = Ref{Cint}()
     ccall((:c_dd_comp_d_dd, libqd), Cvoid, (Cdouble, Ref{DD}, Ref{Cint}),
           x, y.dd, r)
-    Int(r)
+    Int(r[])
 end
 function Base.cmp(x::Float128, y::Float64)
     r = Ref{Cint}()
     ccall((:c_dd_comp_dd_d, libqd), Cvoid, (Ref{DD}, Cdouble, Ref{Cint}),
           x.dd, y, r)
-    Int(r)
+    Int(r[])
 end
 
 Base. ==(x::Float128, y::Float128) = cmp(x, y) == 0
