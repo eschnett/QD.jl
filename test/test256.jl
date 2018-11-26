@@ -21,8 +21,14 @@ for n in 1:1000
 
     @test isequal(Float64(Float256(x64)), x64)
 
+    x128 = Float128(rand(BigFloat))
+    y128 = Float128(rand(BigFloat))
+
+    @test isequal(Float128(Float256(x128)), x128)
+
     xbig = rand(BigFloat)
     @test isequal(big(Float256(x64)), big(x64))
+    @test isequal(big(Float256(x128)), big(x128))
     @test abs(big(Float256(xbig)) - xbig) <= eps(Float256)
 
     x = Float256(rand(BigFloat))
@@ -34,24 +40,62 @@ for n in 1:1000
     @test approxeq(Float256, 2, [x], big(inv(x)),  inv(big(x)))
 
     @test abs(big(x + y) - (big(x) + big(y))) <= eps(Float256)
+    @test abs(big(x128 + y) - (big(x128) + big(y))) <= eps(Float256)
     @test abs(big(x64 + y) - (big(x64) + big(y))) <= eps(Float256)
+    @test abs(big(x + y128) - (big(x) + big(y128))) <= eps(Float256)
     @test abs(big(x + y64) - (big(x) + big(y64))) <= eps(Float256)
 
     @test abs(big(x - y) - (big(x) - big(y))) <= eps(Float256)
+    @test abs(big(x128 - y) - (big(x128) - big(y))) <= eps(Float256)
     @test abs(big(x64 - y) - (big(x64) - big(y))) <= eps(Float256)
+    @test abs(big(x - y128) - (big(x) - big(y128))) <= eps(Float256)
     @test abs(big(x - y64) - (big(x) - big(y64))) <= eps(Float256)
 
     @test abs(big(x * y) - (big(x) * big(y))) <= eps(Float256)
+    @test abs(big(x128 * y) - (big(x128) * big(y))) <= eps(Float256)
     @test abs(big(x64 * y) - (big(x64) * big(y))) <= eps(Float256)
+    @test abs(big(x * y128) - (big(x) * big(y128))) <= eps(Float256)
     @test abs(big(x * y64) - (big(x) * big(y64))) <= eps(Float256)
 
     @test approxeq(Float256, 2, [x, y], big(x / y), big(x) / big(y))
+    @test approxeq(Float256, 2, [x, y], big(x128 / y), big(x128) / big(y))
     @test approxeq(Float256, 2, [x, y], big(x64 / y), big(x64) / big(y))
+    @test approxeq(Float256, 2, [x, y], big(x / y128), big(x) / big(y128))
     @test approxeq(Float256, 2, [x, y], big(x / y64), big(x) / big(y64))
 
     @test approxeq(Float256, 2, [x, y], big(x \ y), big(x) \ big(y))
+    @test approxeq(Float256, 2, [x, y], big(x128 \ y), big(x128) \ big(y))
     @test approxeq(Float256, 2, [x, y], big(x64 \ y), big(x64) \ big(y))
+    @test approxeq(Float256, 2, [x, y], big(x \ y128), big(x) \ big(y128))
     @test approxeq(Float256, 2, [x, y], big(x \ y64), big(x) \ big(y64))
+
+    @test isequal(x == x, big(x) == big(x))
+    @test isequal(x != x, big(x) != big(x))
+    @test isequal(x < x, big(x) < big(x))
+    @test isequal(x <= x, big(x) <= big(x))
+    @test isequal(x > x, big(x) > big(x))
+    @test isequal(x >= x, big(x) >= big(x))
+
+    @test isequal(x == y, big(x) == big(y))
+    @test isequal(x != y, big(x) != big(y))
+    @test isequal(x < y, big(x) < big(y))
+    @test isequal(x <= y, big(x) <= big(y))
+    @test isequal(x > y, big(x) > big(y))
+    @test isequal(x >= y, big(x) >= big(y))
+
+    @test isequal(x64 == y, big(x64) == big(y))
+    @test isequal(x64 != y, big(x64) != big(y))
+    @test isequal(x64 < y, big(x64) < big(y))
+    @test isequal(x64 <= y, big(x64) <= big(y))
+    @test isequal(x64 > y, big(x64) > big(y))
+    @test isequal(x64 >= y, big(x64) >= big(y))
+
+    @test isequal(x == y64, big(x) == big(y64))
+    @test isequal(x != y64, big(x) != big(y64))
+    @test isequal(x < y64, big(x) < big(y64))
+    @test isequal(x <= y64, big(x) <= big(y64))
+    @test isequal(x > y64, big(x) > big(y64))
+    @test isequal(x >= y64, big(x) >= big(y64))
 
     @test isequal(big(floor(1.0e10 * x)), floor(big(1.0e10 * x)))
     @test isequal(big(ceil(1.0e10 * x)), ceil(big(1.0e10 * x)))

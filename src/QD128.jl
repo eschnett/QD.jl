@@ -391,6 +391,14 @@ end
 
 
 
+function Base.rand(::Type{Float128})
+    r = Ref{D2}()
+    ccall((:c_dd_rand, libqd), Cvoid, (Ref{D2},), r)
+    Float128(r[])
+end
+
+
+
 # Constants
 
 const c128_0 = Float128(0.0)

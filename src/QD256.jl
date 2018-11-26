@@ -29,7 +29,7 @@ function Float256(x::Float64)
 end
 function Float256(x::Float128)
     r = Ref{D4}()
-    ccall((:c_qd_copy_qd, libqd), Cvoid, (Ref{D2}, Ref{D4}), x.d2, r)
+    ccall((:c_qd_copy_dd, libqd), Cvoid, (Ref{D2}, Ref{D4}), x.d2, r)
     Float256(r[])
 end
 function Float256(x::Union{Int8, Int16, Int32, UInt8, UInt16, UInt32,
@@ -105,10 +105,22 @@ function Base. +(x::Float256, y::Float256)
     ccall((:c_qd_add, libqd), Cvoid, (Ref{D4}, Ref{D4}, Ref{D4}), x.d4, y.d4, r)
     Float256(r[])
 end
+function Base. +(x::Float128, y::Float256)
+    r = Ref{D4}()
+    ccall((:c_qd_add_dd_qd, libqd), Cvoid, (Ref{D2}, Ref{D4}, Ref{D4}),
+          x.d2, y.d4, r)
+    Float256(r[])
+end
 function Base. +(x::Float64, y::Float256)
     r = Ref{D4}()
     ccall((:c_qd_add_d_qd, libqd), Cvoid, (Cdouble, Ref{D4}, Ref{D4}),
           x, y.d4, r)
+    Float256(r[])
+end
+function Base. +(x::Float256, y::Float128)
+    r = Ref{D4}()
+    ccall((:c_qd_add_qd_dd, libqd), Cvoid, (Ref{D4}, Ref{D2}, Ref{D4}),
+          x.d4, y.d2, r)
     Float256(r[])
 end
 function Base. +(x::Float256, y::Float64)
@@ -125,10 +137,22 @@ function Base. -(x::Float256, y::Float256)
     ccall((:c_qd_sub, libqd), Cvoid, (Ref{D4}, Ref{D4}, Ref{D4}), x.d4, y.d4, r)
     Float256(r[])
 end
+function Base. -(x::Float128, y::Float256)
+    r = Ref{D4}()
+    ccall((:c_qd_sub_dd_qd, libqd), Cvoid, (Ref{D2}, Ref{D4}, Ref{D4}),
+          x.d2, y.d4, r)
+    Float256(r[])
+end
 function Base. -(x::Float64, y::Float256)
     r = Ref{D4}()
     ccall((:c_qd_sub_d_qd, libqd), Cvoid, (Cdouble, Ref{D4}, Ref{D4}),
           x, y.d4, r)
+    Float256(r[])
+end
+function Base. -(x::Float256, y::Float128)
+    r = Ref{D4}()
+    ccall((:c_qd_sub_qd_dd, libqd), Cvoid, (Ref{D4}, Ref{D2}, Ref{D4}),
+          x.d4, y.d2, r)
     Float256(r[])
 end
 function Base. -(x::Float256, y::Float64)
@@ -145,12 +169,27 @@ function Base. *(x::Float256, y::Float256)
     ccall((:c_qd_mul, libqd), Cvoid, (Ref{D4}, Ref{D4}, Ref{D4}), x.d4, y.d4, r)
     Float256(r[])
 end
+# This function as well as its counterpart below are much less
+# accurate than expected. Their accuracy is that of Float128, not
+# Float256. We therefore disable them.
+# function Base. *(x::Float128, y::Float256)
+#     r = Ref{D4}()
+#     ccall((:c_qd_mul_dd_qd, libqd), Cvoid, (Ref{D2}, Ref{D4}, Ref{D4}),
+#           x.d2, y.d4, r)
+#     Float256(r[])
+# end
 function Base. *(x::Float64, y::Float256)
     r = Ref{D4}()
     ccall((:c_qd_mul_d_qd, libqd), Cvoid, (Cdouble, Ref{D4}, Ref{D4}),
           x, y.d4, r)
     Float256(r[])
 end
+# function Base. *(x::Float256, y::Float128)
+#     r = Ref{D4}()
+#     ccall((:c_qd_mul_qd_dd, libqd), Cvoid, (Ref{D4}, Ref{D2}, Ref{D4}),
+#           x.d4, y.d2, r)
+#     Float256(r[])
+# end
 function Base. *(x::Float256, y::Float64)
     r = Ref{D4}()
     ccall((:c_qd_mul_qd_d, libqd), Cvoid, (Ref{D4}, Cdouble, Ref{D4}),
@@ -165,10 +204,22 @@ function Base. /(x::Float256, y::Float256)
     ccall((:c_qd_div, libqd), Cvoid, (Ref{D4}, Ref{D4}, Ref{D4}), x.d4, y.d4, r)
     Float256(r[])
 end
+function Base. /(x::Float128, y::Float256)
+    r = Ref{D4}()
+    ccall((:c_qd_div_dd_qd, libqd), Cvoid, (Ref{D2}, Ref{D4}, Ref{D4}),
+          x.d2, y.d4, r)
+    Float256(r[])
+end
 function Base. /(x::Float64, y::Float256)
     r = Ref{D4}()
     ccall((:c_qd_div_d_qd, libqd), Cvoid, (Cdouble, Ref{D4}, Ref{D4}),
           x, y.d4, r)
+    Float256(r[])
+end
+function Base. /(x::Float256, y::Float128)
+    r = Ref{D4}()
+    ccall((:c_qd_div_qd_dd, libqd), Cvoid, (Ref{D4}, Ref{D2}, Ref{D4}),
+          x.d4, y.d2, r)
     Float256(r[])
 end
 function Base. /(x::Float256, y::Float64)
@@ -179,7 +230,9 @@ function Base. /(x::Float256, y::Float64)
 end
 
 Base. \(x::Float256, y::Float256) = y / x
+Base. \(x::Float128, y::Float256) = y / x
 Base. \(x::Float64, y::Float256) = y / x
+Base. \(x::Float256, y::Float128) = y / x
 Base. \(x::Float256, y::Float64) = y / x
 
 
@@ -399,6 +452,14 @@ function sincosh(x::Float256)
     ccall((:c_qd_sincosh, libqd), Cvoid, (Ref{D4}, Ref{D4}, Ref{D4}),
           x.d4, r, s)
     Float256(r[]), Float256(s[])
+end
+
+
+
+function Base.rand(::Type{Float256})
+    r = Ref{D4}()
+    ccall((:c_qd_rand, libqd), Cvoid, (Ref{D4},), r)
+    Float256(r[])
 end
 
 
