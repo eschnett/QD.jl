@@ -1,8 +1,19 @@
 module QD
 
 using Libdl
-const libqd = "/Users/eschnett/qd-2.3.22/lib/libqd.0.dylib"
-Libdl.dlopen(libqd)
+
+# Load in `deps.jl`, complaining if it does not exist
+const depsjl_path = joinpath(@__DIR__, "..", "deps", "deps.jl")
+if !isfile(depsjl_path)
+    error("QD not installed properly, run Pkg.build(\"QD\"), restart Julia, and try again")
+end
+include(depsjl_path)
+
+# Module initialization function
+function __init__()
+    # Always check your dependencies from `deps.jl`
+    check_deps()
+end
 
 
 
