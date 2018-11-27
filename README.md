@@ -11,6 +11,22 @@ precision `Float128` and `Float256` arithmetic.
 (Note: The test coverage is actually much higher. Julia's coverage
 calculator misses many source code lines that are actually executed.)
 
+
+
+### Similar packages
+
+[[DoubleFloats]](https://github.com/JuliaMath/DoubleFloats.jl) is a
+very similar package, likely based on the same code lineage.
+[DoubleFloats] is more flexible (you can e.g. combine two `Float32` to
+get a `Float64`-lookalike, which might be quite useful on GPUs.
+[DoubleFloats] doesn't seem to support a `Float256`-equivalent type.
+
+[[ErrorfreeArithmetic]](https://github.com/JeffreySarnoff/ErrorfreeArithmetic.jl)
+is based on similar ideas, but provides an implementation as functions
+and not as a type.
+
+
+
 ## Example
 
 This package provides two new types `Float128` and `Float256` that
