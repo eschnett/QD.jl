@@ -1,10 +1,12 @@
 name = "QD"
 uuid = "231d7462-ef32-11e8-24b1-7375831ffe71"
 authors = ["Erik Schnetter <schnetter@gmail.com>"]
-version = "0.1.0"
+version = "1.0.0"
 
 [deps]
+BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
 BinaryProvider = "b99e7846-7c00-51b0-8f62-c81ae34c0232"
 Compat = "34da2185-b29b-5c13-b0c7-acf172513d20"
 Libdl = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"

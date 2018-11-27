@@ -55,28 +55,30 @@ julia> n=100;
 
 julia> A64 = rand(Float64, n, n);
 julia> B64 = @btime inv(A64);
-  317.306 μs (6 allocations: 129.27 KiB)
+  306.157 μs (6 allocations: 129.27 KiB)
 julia> norm(B64 * A64 - I)
-1.7329473539985953e-13
+1.4440108319436736e-12
 
 julia> A128 = rand(Float128, n, n);
 julia> B128 = @btime inv(A128);
-  5.170 ms (15 allocations: 474.42 KiB)
+  5.177 ms (15 allocations: 474.42 KiB)
 julia> norm(B128 * A128 - I)
-1.37702799848709929942060146535197e-28
+1.19496652320293845810089276691420e-28
 
 julia> A256 = rand(Float256, n, n);
 julia> B256 = @btime inv(A256);
-  153.904 ms (15 allocations: 946.14 KiB)
+  95.517 ms (15 allocations: 946.14 KiB)
 julia> norm(B256 * A256 - I)
-3.6861760395079082468609457967696988863273208819055135969958525024e-61
+3.4293792195278235762102730788487570191920941211322204339008314344e-61
 
 julia> Abig = rand(BigFloat, n, n);
 julia> Bbig = @btime inv(Abig);
-  268.576 ms (5334037 allocations: 285.10 MiB)
+  271.446 ms (5334037 allocations: 285.10 MiB)
 julia> norm(Bbig * Abig - I)
-2.866190771077340288694283208193327964200118337345917496588261302618102449593413e-74
+1.187140215116236991926392678171305368288858808728624740197177252518979524096639e-73
 ```
 
-(Times measured on a 2.8 GHz Intel Core i7.)
-
+(Times measured on a 2.8 GHz Intel Core i7.) This benchmarks inverts a
+`100 × 100` matrix. `Float128` is here about 50 times faster than
+`BigFloat` (but less than half as accurate), and `Float256` is about
+twice as fast and requires no memory allocations.

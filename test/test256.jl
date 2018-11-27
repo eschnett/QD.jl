@@ -10,6 +10,8 @@
 
 @test Float64(eps(Float256)) <= 1.0e-60
 
+@test isequal(big(zero(Float256)), big(0))
+@test isequal(big(one(Float256)), big(1))
 @test abs(big(Float256(π)) - big(π)) <= eps(Float256)
 @test abs(big(Float256(ℯ)) - big(ℯ)) <= eps(Float256)
 
@@ -143,3 +145,14 @@ for n in 1:1000
     @test approxeq(Float256, 10, [x + 2], big(acosh(x + 2)), acosh(big(x + 2)))
     @test approxeq(Float256, 10, [x], big(atanh(x)), atanh(big(x)))
 end
+
+
+
+n = 100
+A256 = rand(Float256, n, n)
+B256 = inv(A256)
+@test norm(B256 * A256 - I) <= n * norm(A256) * norm(B256) * eps(Float256)
+
+Abig = rand(BigFloat, n, n);
+Bbig = inv(Abig);
+@test norm(Bbig * Abig - I) <= n * norm(Abig) * norm(Bbig) * eps(BigFloat)

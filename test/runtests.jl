@@ -1,4 +1,6 @@
+using LinearAlgebra
 using Test
+
 using QD
 
 function approxeq(::Type{T}, tolfac, xs, r0, r1) where {T}

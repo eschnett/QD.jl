@@ -1,6 +1,6 @@
 # Types
 
-const D2 = NTuple{2, Cdouble} 
+const D2 = NTuple{2, Cdouble}
 
 export Float128
 struct Float128 <: AbstractFloat
@@ -28,18 +28,22 @@ end
 #     Float128(r[])
 # end
 Float128(x::Float64) = Float128((x, 0.0))
+
 function Float128(x::Union{Bool, Int8, Int16, Int32, UInt8, UInt16, UInt32,
                            Float16, Float32})
     Float128(Float64(x))
 end
+
 function Float128(x::Union{Int64, UInt64})
     hi = x >> 32 << 32
     lo = x - hi
     Float128(Float64(hi)) + Float128(Float64(lo))
 end
+
 function Float128(x::Rational)
     Float128(numerator(x)) / Float128(denominator(x))
 end
+
 function Float128(x::BigFloat)
     r1 = Float128(Float64(x))
     x -= BigFloat(r1)
@@ -62,12 +66,6 @@ Base.promote_rule(::Type{Float128}, ::Type{BigInt}) = BigFloat
 
 
 
-function Float128(::Irrational{:π})
-    r = Ref{D2}()
-    ccall((:c_dd_pi, libqd), Cvoid, (Ref{D2},), r)
-    Float128(r[])
-end
-Float128(::Irrational{:ℯ}) = c128_e
 # Base.zero(::Type{Float128}) = c128_0
 # Base.one(::Type{Float128}) = c128_1
 # Base.eps(::Type{Float128}) = c128_eps
@@ -75,76 +73,15 @@ Base.zero(::Type{Float128}) = Float128(0.0)
 Base.one(::Type{Float128}) = Float128(1.0)
 Base.eps(::Type{Float128}) = Float128(2^-104)
 
+# function Float128(::Irrational{:π})
+#     r = Ref{D2}()
+#     ccall((:c_dd_pi, libqd), Cvoid, (Ref{D2},), r)
+#     Float128(r[])
+# end
+Float128(::Irrational{:ℯ}) = c128_e
+Float128(::Irrational{:π}) = c128_pi
 
 
-# Basic (internal) Functions
-
-# Computes fl(a+b) and err(a+b).  Assumes |a| >= |b|.
-function quick_two_sum(a::T, b::T) where {T <: AbstractFloat}
-    s = a + b
-    err = b - (s - a)
-    s, err
-end
-
-# Computes fl(a-b) and err(a-b).  Assumes |a| >= |b|.
-function quick_two_diff(a::T, b::T) where {T <: AbstractFloat}
-    s = a - b
-    err = (a - s) - b
-    s, err
-end
-
-# Computes fl(a+b) and err(a+b).
-function two_sum(a::T, b::T) where {T <: AbstractFloat}
-    s = a + b
-    bb = s - a
-    err = (a - (s - bb)) + (b - bb)
-    s, err
-end
-
-# Computes fl(a-b) and err(a-b).
-function two_diff(a::T, b::T) where {T <: AbstractFloat}
-    s = a - b
-    bb = s - a
-    err = (a - (s - bb)) - (b + bb)
-    s, err
-end
-
-# Computes high word and lo word of a
-const _QD_SPLITTER = 134217729.0               # = 2^27 + 1
-const _QD_SPLIT_THRESH = 6.69692879491417e+299 # = 2^996
-function split(a::T) where {T <: AbstractFloat}
-    if a > _QD_SPLIT_THRESH || a < -_QD_SPLIT_THRESH
-        a *= 3.7252902984619140625e-09 # 2^-28
-        temp = _QD_SPLITTER * a
-        hi = temp - (temp - a)
-        lo = a - hi
-        hi *= 268435456.0       # 2^28
-        lo *= 268435456.0       # 2^28
-    else
-        temp = _QD_SPLITTER * a
-        hi = temp - (temp - a)
-        lo = a - hi
-    end
-    hi, lo
-end
-
-# Computes fl(a*b) and err(a*b).
-function two_prod(a::T, b::T) where {T <: AbstractFloat}
-    if fma_is_fast
-        p = a * b
-        err = fma(a, b, -p)
-    else
-        p = a * b
-        a_hi, a_lo = split(a)
-        b_hi, b_lo = split(b)
-        err = ((a_hi * b_hi - p) + a_hi * b_lo + a_lo * b_hi) + a_lo * b_lo
-    end
-    p, err
-end
-
-
-
-# Externall visible functions
 
 Base. +(x::Float128) = x
 
@@ -153,6 +90,7 @@ Base. +(x::Float128) = x
 #     ccall((:c_dd_neg, libqd), Cvoid, (Ref{D2}, Ref{D2}), x.d2, r)
 #     Float128(r[])
 # end
+
 function Base. -(a::Float128)
     Float128((- a.d2[1], - a.d2[2]))
 end
@@ -162,6 +100,7 @@ end
 #     ccall((:c_dd_abs, libqd), Cvoid, (Ref{D2}, Ref{D2}), x.d2, r)
 #     Float128(r[])
 # end
+
 Base.abs(a::Float128) = a.d2[1] < 0.0 ? -a : a
 
 Base.inv(x::Float128) = one(Float64) / x
@@ -173,18 +112,21 @@ Base.inv(x::Float128) = one(Float64) / x
 #     ccall((:c_dd_add, libqd), Cvoid, (Ref{D2}, Ref{D2}, Ref{D2}), x.d2, y.d2, r)
 #     Float128(r[])
 # end
+#
 # function Base. +(x::Float64, y::Float128)
 #     r = Ref{D2}()
 #     ccall((:c_dd_add_d_dd, libqd), Cvoid, (Cdouble, Ref{D2}, Ref{D2}),
 #           x, y.d2, r)
 #     Float128(r[])
 # end
+#
 # function Base. +(x::Float128, y::Float64)
 #     r = Ref{D2}()
 #     ccall((:c_dd_add_dd_d, libqd), Cvoid, (Ref{D2}, Cdouble, Ref{D2}),
 #           x.d2, y, r)
 #     Float128(r[])
 # end
+
 function Base. +(a::Float128, b::Float128)
     # This is the less accurate version ... obeys Cray-style error bound.
     s, e = two_sum(a.d2[1], b.d2[1])
@@ -192,13 +134,16 @@ function Base. +(a::Float128, b::Float128)
     s, e = quick_two_sum(s, e)
     Float128((s, e))
 end
+
 function Base. +(a::Float128, b::Float64)
     s1, s2 = two_sum(a.d2[1], b)
     s2 += a.d2[2]
     s1, s2 = quick_two_sum(s1, s2)
     Float128((s1, s2))
 end
+
 Base. +(a::Float64, b::Float128) = b + a
+
 export wideadd
 function wideadd(a::Float64, b::Float64)
     s, e = two_sum(a, b)
@@ -212,18 +157,21 @@ end
 #     ccall((:c_dd_sub, libqd), Cvoid, (Ref{D2}, Ref{D2}, Ref{D2}), x.d2, y.d2, r)
 #     Float128(r[])
 # end
+#
 # function Base. -(x::Float64, y::Float128)
 #     r = Ref{D2}()
 #     ccall((:c_dd_sub_d_dd, libqd), Cvoid, (Cdouble, Ref{D2}, Ref{D2}),
 #           x, y.d2, r)
 #     Float128(r[])
 # end
+#
 # function Base. -(x::Float128, y::Float64)
 #     r = Ref{D2}()
 #     ccall((:c_dd_sub_dd_d, libqd), Cvoid, (Ref{D2}, Cdouble, Ref{D2}),
 #           x.d2, y, r)
 #     Float128(r[])
 # end
+
 function Base. -(a::Float128, b::Float128)
     # This is the less accurate version ... obeys Cray-style error bound.
     s, e = two_diff(a.d2[1], b.d2[1])
@@ -232,18 +180,21 @@ function Base. -(a::Float128, b::Float128)
     s, e = quick_two_sum(s, e)
     Float128((s, e))
 end
+
 function Base. -(a::Float128, b::Float64)
     s1, s2 = two_diff(a.d2[1], b)
     s2 += a.d2[2]
     s1, s2 = quick_two_sum(s1, s2)
     Float128((s1, s2))
 end
+
 function Base. -(a::Float64, b::Float128)
   s1, s2 = two_diff(a, b.d2[1])
     s2 -= b.d2[2]
     s1, s2 = quick_two_sum(s1, s2)
     Float128((s1, s2))
 end
+
 export widesub
 function widesub(a::Float64, b::Float64)
     s, e = two_diff(a, b)
@@ -257,30 +208,35 @@ end
 #     ccall((:c_dd_mul, libqd), Cvoid, (Ref{D2}, Ref{D2}, Ref{D2}), x.d2, y.d2, r)
 #     Float128(r[])
 # end
+#
 # function Base. *(x::Float64, y::Float128)
 #     r = Ref{D2}()
 #     ccall((:c_dd_mul_d_dd, libqd), Cvoid, (Cdouble, Ref{D2}, Ref{D2}),
 #           x, y.d2, r)
 #     Float128(r[])
 # end
+#
 # function Base. *(x::Float128, y::Float64)
 #     r = Ref{D2}()
 #     ccall((:c_dd_mul_dd_d, libqd), Cvoid, (Ref{D2}, Cdouble, Ref{D2}),
 #           x.d2, y, r)
 #     Float128(r[])
 # end
+
 function Base. *(a::Float128, b::Float128)
     p1, p2 = two_prod(a.d2[1], b.d2[1])
     p2 += (a.d2[1] * b.d2[2] + a.d2[2] * b.d2[1])
     p1, p2 = quick_two_sum(p1, p2)
     Float128((p1, p2))
 end
+
 function Base. *(a::Float128, b::Float64)
     p1, p2 = two_prod(a.d2[1], b)
     p2 += a.d2[2] * b
     p1, p2 = quick_two_sum(p1, p2)
     Float128((p1, p2))
 end
+
 Base. *(a::Float64, b::Float128) = b * a
 function Base.widemul(a::Float64, b::Float64)
     p, e = two_prod(a, b)
@@ -294,20 +250,23 @@ end
 #     ccall((:c_dd_div, libqd), Cvoid, (Ref{D2}, Ref{D2}, Ref{D2}), x.d2, y.d2, r)
 #     Float128(r[])
 # end
+#
 # function Base. /(x::Float64, y::Float128)
 #     r = Ref{D2}()
 #     ccall((:c_dd_div_d_dd, libqd), Cvoid, (Cdouble, Ref{D2}, Ref{D2}),
 #           x, y.d2, r)
 #     Float128(r[])
 # end
+#
 # function Base. /(x::Float128, y::Float64)
 #     r = Ref{D2}()
 #     ccall((:c_dd_div_dd_d, libqd), Cvoid, (Ref{D2}, Cdouble, Ref{D2}),
 #           x.d2, y, r)
 #     Float128(r[])
 # end
+
 function Base. /(a::Float128, b::Float128)
-  # sloppy div
+    # sloppy div
     q1 = a.d2[1] / b.d2[1]      # approximate quotient
 
     # compute  this - q1 * dd
@@ -323,6 +282,7 @@ function Base. /(a::Float128, b::Float128)
     r_hi, r_lo = quick_two_sum(q1, q2)
     Float128((r_hi, r_lo))
 end
+
 function Base. /(a::Float128, b::Float64)
   q1 = a.d2[1] / b              # approximate quotient.
 
@@ -331,7 +291,7 @@ function Base. /(a::Float128, b::Float64)
     s, e = two_diff(a.d2[1], p1)
     e += a.d2[2]
     e -= p2
-  
+
     # get next approximation.
     q2 = (s + e) / b
 
@@ -339,7 +299,9 @@ function Base. /(a::Float128, b::Float64)
     r_hi, r_lo = quick_two_sum(q1, q2)
     Float128((r_hi, r_lo))
 end
+
 Base. /(a::Float64, b::Float128) = Float128(a) / b
+
 export widediv
 function widediv(a::Float64, b::Float64)
     q1 = a / b
@@ -369,12 +331,14 @@ function Base.cmp(x::Float128, y::Float128)
           x.d2, y.d2, r)
     Int(r[])
 end
+
 function Base.cmp(x::Float64, y::Float128)
     r = Ref{Cint}()
     ccall((:c_dd_comp_d_dd, libqd), Cvoid, (Cdouble, Ref{D2}, Ref{Cint}),
           x, y.d2, r)
     Int(r[])
 end
+
 function Base.cmp(x::Float128, y::Float64)
     r = Ref{Cint}()
     ccall((:c_dd_comp_dd_d, libqd), Cvoid, (Ref{D2}, Cdouble, Ref{Cint}),
@@ -385,23 +349,23 @@ end
 # Base. ==(x::Float128, y::Float128) = cmp(x, y) == 0
 # Base. ==(x::Float64, y::Float128) = cmp(x, y) == 0
 # Base. ==(x::Float128, y::Float64) = cmp(x, y) == 0
-# 
+#
 # Base. !=(x::Float128, y::Float128) = cmp(x, y) != 0
 # Base. !=(x::Float64, y::Float128) = cmp(x, y) != 0
 # Base. !=(x::Float128, y::Float64) = cmp(x, y) != 0
-# 
+#
 # Base. <(x::Float128, y::Float128) = cmp(x, y) < 0
 # Base. <(x::Float64, y::Float128) = cmp(x, y) < 0
 # Base. <(x::Float128, y::Float64) = cmp(x, y) < 0
-# 
+#
 # Base. <=(x::Float128, y::Float128) = cmp(x, y) <= 0
 # Base. <=(x::Float64, y::Float128) = cmp(x, y) <= 0
 # Base. <=(x::Float128, y::Float64) = cmp(x, y) <= 0
-# 
+#
 # Base. >(x::Float128, y::Float128) = cmp(x, y) > 0
 # Base. >(x::Float64, y::Float128) = cmp(x, y) > 0
 # Base. >(x::Float128, y::Float64) = cmp(x, y) > 0
-# 
+#
 # Base. >=(x::Float128, y::Float128) = cmp(x, y) >= 0
 # Base. >=(x::Float64, y::Float128) = cmp(x, y) >= 0
 # Base. >=(x::Float128, y::Float64) = cmp(x, y) >= 0
@@ -475,12 +439,13 @@ function Base. ^(x::Float128, i::Integer)
     Float128(r[])
 end
 
-# function Base.literal_pow(x::Float128, ::Val{2})
+# function Base.literal_pow(::typeof(^), x::Float128, ::Val{2})
 #     r = Ref{D2}()
 #     ccall((:c_dd_sqr, libqd), Cvoid, (Ref{D2}, Ref{D2}), x.d2, r)
 #     Float128(r[])
 # end
-function Base.literal_pow(a::Float128, ::Val{2})
+
+function Base.literal_pow(::typeof(^), a::Float128, ::Val{2})
     p1, p2 = two_sqr(a.d2[1])
     p2 += 2.0 * a.d2[1] * a.d2[2]
     p2 += a.d2[2] * a.d2[2]
@@ -629,6 +594,7 @@ function Base.rand(::Type{Float128})
     ccall((:c_dd_rand, libqd), Cvoid, (Ref{D2},), r)
     Float128(r[])
 end
+
 function Base.rand(::Type{Float128}, dims::Dims)
     r = Array{Float128}(undef, dims)
     for i in LinearIndices(r)
@@ -636,6 +602,7 @@ function Base.rand(::Type{Float128}, dims::Dims)
     end
     r
 end
+
 Base.rand(::Type{Float128}, dims::Integer...) = rand(Float128, Dims(dims))
 
 
@@ -645,6 +612,12 @@ Base.rand(::Type{Float128}, dims::Integer...) = rand(Float128, Dims(dims))
 # const c128_0 = Float128(0.0)
 # const c128_1 = Float128(1.0)
 # const c128_eps = Float128(2^-104)
+
+const c128_pi = begin
+    r = Ref{D2}()
+    ccall((:c_dd_pi, libqd), Cvoid, (Ref{D2},), r)
+    Float128(r[])
+end
 const c128_e = exp(Float128(1.0))
 const c128_log10 = log(Float128(10.0))
 const c128_log2 = log(Float128(2.0))
