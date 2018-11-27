@@ -27,7 +27,7 @@ function Float128(x::Float64)
     ccall((:c_dd_copy_d, libqd), Cvoid, (Cdouble, Ref{D2}), x, r)
     Float128(r[])
 end
-function Float128(x::Union{Int8, Int16, Int32, UInt8, UInt16, UInt32,
+function Float128(x::Union{Bool, Int8, Int16, Int32, UInt8, UInt16, UInt32,
                            Float16, Float32})
     Float128(Float64(x))
 end
@@ -35,6 +35,9 @@ function Float128(x::Union{Int64, UInt64})
     hi = x >> 32 << 32
     lo = x - hi
     Float128(Float64(hi)) + Float128(Float64(lo))
+end
+function Float128(x::Rational)
+    Float128(numerator(x)) / Float128(denominator(x))
 end
 function Float128(x::BigFloat)
     r1 = Float128(Float64(x))
@@ -396,6 +399,14 @@ function Base.rand(::Type{Float128})
     ccall((:c_dd_rand, libqd), Cvoid, (Ref{D2},), r)
     Float128(r[])
 end
+function Base.rand(::Type{Float128}, dims::Dims)
+    r = Array{Float128}(undef, dims)
+    for i in LinearIndices(r)
+        r[i] = rand(Float128)
+    end
+    r
+end
+Base.rand(::Type{Float128}, dims::Integer...) = rand(Float128, Dims(dims))
 
 
 

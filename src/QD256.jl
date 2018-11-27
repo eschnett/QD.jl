@@ -32,7 +32,7 @@ function Float256(x::Float128)
     ccall((:c_qd_copy_dd, libqd), Cvoid, (Ref{D2}, Ref{D4}), x.d2, r)
     Float256(r[])
 end
-function Float256(x::Union{Int8, Int16, Int32, UInt8, UInt16, UInt32,
+function Float256(x::Union{Bool, Int8, Int16, Int32, UInt8, UInt16, UInt32,
                            Float16, Float32})
     Float256(Float64(x))
 end
@@ -40,6 +40,9 @@ function Float256(x::Union{Int64, UInt64})
     hi = x >> 32 << 32
     lo = x - hi
     Float256(Float64(hi)) + Float256(Float64(lo))
+end
+function Float256(x::Rational)
+    Float256(numerator(x)) / Float256(denominator(x))
 end
 function Float256(x::BigFloat)
     r1 = Float256(Float64(x))
@@ -461,6 +464,14 @@ function Base.rand(::Type{Float256})
     ccall((:c_qd_rand, libqd), Cvoid, (Ref{D4},), r)
     Float256(r[])
 end
+function Base.rand(::Type{Float256}, dims::Dims)
+    r = Array{Float256}(undef, dims)
+    for i in LinearIndices(r)
+        r[i] = rand(Float256)
+    end
+    r
+end
+Base.rand(::Type{Float256}, dims::Integer...) = rand(Float256, Dims(dims))
 
 
 
