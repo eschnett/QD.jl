@@ -12,6 +12,12 @@
 
 
 
+pi128 = f128"3.141592653589793238462643383279502884197169399375105820974944592307816406286198"
+@test isequal(big(pi128), Float128(π))
+@test isequal(parse(Float128, string(pi128)), pi128)
+
+
+
 for n in 1:1000
     x64 = rand(Float64)
     y64 = rand(Float64)

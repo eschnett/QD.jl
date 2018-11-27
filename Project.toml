@@ -1,7 +1,7 @@
 name = "QD"
 uuid = "231d7462-ef32-11e8-24b1-7375831ffe71"
 authors = ["Erik Schnetter <schnetter@gmail.com>"]
-version = "1.0.0"
+version = "1.1.0"
 
 [deps]
 BinaryProvider = "b99e7846-7c00-51b0-8f62-c81ae34c0232"

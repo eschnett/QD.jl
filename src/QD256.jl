@@ -11,14 +11,27 @@ end
 
 # Functions
 
-function Base.show(io::IO, x::Float256)
-    len = 80
-    buf = Vector{Cchar}(undef, len)
-    prec = 64
-    ccall((:c_qd_swrite, libqd), Cvoid, (Ref{D4}, Cint, Ptr{Cchar}, Cint),
-          x.d4, prec, buf, len)
-    print(io, unsafe_string(pointer(buf)))
+function Base.tryparse(::Type{Float256}, str::String)
+    r = tryparse(BigFloat, str)
+    r === nothing && return r
+    Float256(r)
 end
+
+export @f256_str
+macro f256_str(str::String)
+    :(Float256(BigFloat($str)))
+end
+
+# function Base.show(io::IO, x::Float256)
+#     len = 80
+#     buf = Vector{Cchar}(undef, len)
+#     prec = 64
+#     ccall((:c_qd_swrite, libqd), Cvoid, (Ref{D4}, Cint, Ptr{Cchar}, Cint),
+#           x.d4, prec, buf, len)
+#     print(io, unsafe_string(pointer(buf)))
+# end
+
+Base.show(io::IO, x::Float256) = show(io, BigFloat(x))
 
 
 
