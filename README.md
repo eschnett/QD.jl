@@ -21,6 +21,10 @@ very similar package, likely based on the same code lineage.
 get a `Float64`-lookalike, which might be quite useful on GPUs.
 [DoubleFloats] doesn't seem to support a `Float256`-equivalent type.
 
+[[AccurateArithmetic]](https://github.com/JuliaMath/AccurateArithmetic.jl)
+is based on similar ideas, but provides an implementation as functions
+and not as a type.
+
 [[ErrorfreeArithmetic]](https://github.com/JeffreySarnoff/ErrorfreeArithmetic.jl)
 is based on similar ideas, but provides an implementation as functions
 and not as a type.
