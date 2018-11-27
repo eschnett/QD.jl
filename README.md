@@ -17,32 +17,56 @@ This package provides two new types `Float128` and `Float256` that
 have a much higher precision than `Float64` -- they have about 30 and
 60 digits of precision, respectively.
 
+Let's test this by evaluating the fraction `1/3` with various
+precisions:
+
 ```Julia
 julia> big(1/3)
 3.33333333333333314829616256247390992939472198486328125e-01
+```
+`Float64` has 16 correct digits.
 
+```Julia
 julia> big(one(Float128)/3)
 3.333333333333333333333333333333323061706963268075450368117639547054301130124543e-01
+```
+`Float128` has 32 correct digits.
 
+```Julia
 julia> big(one(Float256)/3)
 3.333333333333333333333333333333333333333333333333333333333333333301681440847467e-01
+```
+`Float256` has 65 correct digits.
 
+We can also evaluate the constant `π` and compare to `BigFloat`:
+
+```Julia
 julia> big(Float64(π))
 3.141592653589793115997963468544185161590576171875
+julia> round(big(Float64(π)) - big(π), sigdigits=3)
+-1.22e-16
 
 julia> big(Float128(π))
 3.141592653589793238462643383279505878966979117714660462569212467758006379625613
+julia> round(big(Float128(π)) - big(π), sigdigits=3)
+2.99e-33
 
 julia> big(Float256(π))
 3.141592653589793238462643383279502884197169399375105820974944592302144174306569
+julia> round(big(Float256(π)) - big(π), sigdigits=3)
+-5.67e-66
 
 julia> big(π)
 3.141592653589793238462643383279502884197169399375105820974944592307816406286198
 ```
 
-There is not much else to say. All basic arithmetic (`+` `-` `*` `/`
-`^`) and most elementary function (`sqrt`, `sin`, `cos`, ...) are
-supported.
+There is not much else to say. If your code is type-generic (and this
+is Julia, it really should be!), then you can use `Float128` and
+`Float256` as drop-in replacement for `Float64` or `BigFloat`. All
+basic arithmetic (`+` `-` `*` `/` `^`) and most elementary function
+(`sqrt`, `sin`, `cos`, ...) are supported.
+
+## Speed and memory usage
 
 The main advantage of `Float128` and `Float256` over `BigFloat` is
 their speed and their compact representation which doesn't require
