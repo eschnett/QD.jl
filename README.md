@@ -55,28 +55,28 @@ julia> n=100;
 
 julia> A64 = rand(Float64, n, n);
 julia> B64 = @btime inv(A64);
-  332.547 μs (6 allocations: 129.27 KiB)
+  317.306 μs (6 allocations: 129.27 KiB)
 julia> norm(B64 * A64 - I)
-2.002496069046987e-12
+1.7329473539985953e-13
 
 julia> A128 = rand(Float128, n, n);
 julia> B128 = @btime inv(A128);
-  30.359 ms (15 allocations: 474.42 KiB)
+  5.170 ms (15 allocations: 474.42 KiB)
 julia> norm(B128 * A128 - I)
-3.96457501799424717532464111284210e-29
+1.37702799848709929942060146535197e-28
 
 julia> A256 = rand(Float256, n, n);
 julia> B256 = @btime inv(A256);
-  141.966 ms (15 allocations: 946.14 KiB)
+  153.904 ms (15 allocations: 946.14 KiB)
 julia> norm(B256 * A256 - I)
-9.5568080248899741307802777589483931559896810980339187916348988423e-62
+3.6861760395079082468609457967696988863273208819055135969958525024e-61
 
 julia> Abig = rand(BigFloat, n, n);
 julia> Bbig = @btime inv(Abig);
-  272.190 ms (5334037 allocations: 285.10 MiB)
+  268.576 ms (5334037 allocations: 285.10 MiB)
 julia> norm(Bbig * Abig - I)
-1.582347286040459990308714227387729179609262775249068116182950508091290236546631e-73
+2.866190771077340288694283208193327964200118337345917496588261302618102449593413e-74
 ```
 
 (Times measured on a 2.8 GHz Intel Core i7.)
- 
+

@@ -15,6 +15,9 @@ function __init__()
     check_deps()
 end
 
+# TODO: Check whether this is actually true
+const fma_is_fast = true
+
 include("QD128.jl")
 include("QD256.jl")
 

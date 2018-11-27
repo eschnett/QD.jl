@@ -23,9 +23,10 @@ end
 
 
 function Float256(x::Float64)
-    r = Ref{D4}()
-    ccall((:c_qd_copy_d, libqd), Cvoid, (Cdouble, Ref{D4}), x, r)
-    Float256(r[])
+    # r = Ref{D4}()
+    # ccall((:c_qd_copy_d, libqd), Cvoid, (Cdouble, Ref{D4}), x, r)
+    # Float256(r[])
+    Float256((x, 0.0, 0.0, 0.0))
 end
 function Float256(x::Float128)
     r = Ref{D4}()
