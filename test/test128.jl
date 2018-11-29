@@ -91,8 +91,7 @@ for n in 1:1000
 
     @test abs(big(x ^ 2) - big(x) ^ 2) <= eps(Float128)
     @test approxeq(Float128, 10, [x], big(x ^ 5), big(x) ^ 5)
-    @test approxeq(Float128, 2, [abs(x)],
-                   big(sqrt(abs(x))), sqrt(big(abs(x))))
+    @test approxeq(Float128, 2, [], big(sqrt(abs(x))), sqrt(big(abs(x))))
     @test approxeq(Float128, 10, [abs(x)],
                    big(nroot(abs(x), 5)), big(abs(x)) ^ (big(1)/5))
 
@@ -126,9 +125,9 @@ for n in 1:1000
     @test approxeq(Float128, 10, [x], big(sincosh(x)[1]), sinh(big(x)))
     @test approxeq(Float128, 10, [x], big(sincosh(x)[2]), cosh(big(x)))
 
-    @test approxeq(Float128, 10, [x], big(asinh(x)), asinh(big(x)))
+    @test approxeq(Float128, 10, [1, x], big(asinh(x)), asinh(big(x)))
     @test approxeq(Float128, 10, [x + 2], big(acosh(x + 2)), acosh(big(x + 2)))
-    @test approxeq(Float128, 10, [x], big(atanh(x)), atanh(big(x)))
+    @test approxeq(Float128, 10, [1, x], big(atanh(x)), atanh(big(x)))
 end
 
 
